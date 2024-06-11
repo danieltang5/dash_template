@@ -3,12 +3,12 @@ import re
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 from bs4 import BeautifulSoup
 import os
 
 from capture import Capture
+
 
 class FuelMixDownloader(Capture):
     def __init__(self, max_retries=3):
@@ -122,7 +122,7 @@ app.layout = [
                         data=[],
                         page_size=30,
                         style_table={"overflowX": "auto"},
-                        id= "controls-and-table"
+                        id="controls-and-table",
                     )
                 ],
             ),
@@ -132,7 +132,7 @@ app.layout = [
             ),
         ],
     ),
-    dcc.Store(id='stored-data', data=df.to_dict("records"))
+    dcc.Store(id="stored-data", data=df.to_dict("records")),
 ]
 
 
@@ -141,16 +141,22 @@ app.layout = [
     Output(component_id="controls-and-graph", component_property="figure"),
     Input(component_id="controls-and-radio-item-year", component_property="value"),
     Input(component_id="controls-and-radio-item-month", component_property="value"),
-    Input(component_id='stored-data', component_property='data')
+    Input(component_id="stored-data", component_property="data"),
 )
 def update_graph(year, month, data):
     fm_df = pd.DataFrame(data)
     fm_df = fm_df[fm_df["Year"] == year]
     fm_df = fm_df[["Energy, GWh", month]]
     fm_df = fm_df[fm_df["Energy, GWh"] != "Total"]
-    fig = px.pie(fm_df, names="Energy, GWh", values=month, title=f"ERCOT Fuel Mix for {year} - {month}")
+    fig = px.pie(
+        fm_df,
+        names="Energy, GWh",
+        values=month,
+        title=f"ERCOT Fuel Mix for {year} - {month}",
+    )
     return fm_df.to_dict("records"), fig
+
+
 # Run the app
 if __name__ == "__main__":
     app.run(debug=True)
-
